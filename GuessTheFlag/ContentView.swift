@@ -11,14 +11,14 @@ struct ContentView: View {
     @State private var showingScore = false
     @State private var scoreTitle = ""
     @State private var score = 0
+    @State private var questionNumber = 0
+    @State private var showingFinalScore = false
     
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     
     var body: some View {
         ZStack {
-//            RadialGradient(gradient: Gradient(colors: [.blue, .red]), center: .top, startRadius: 200, endRadius: 700)
-//                .ignoresSafeArea()
             RadialGradient(stops: [
                 .init(color: Color(red: 0.1, green: 0.2, blue: 0.45), location: 0.3),
                 .init(color: Color(red: 0.76, green: 0.15, blue: 0.26), location: 0.3),
@@ -66,6 +66,11 @@ struct ContentView: View {
         } message: {
             Text("Your score is \(score)")
         }
+        .alert(scoreTitle, isPresented: $showingFinalScore) {
+            Button("Restart", action: restartQuiz)
+        } message: {
+            Text("You got \(score) out of 8")
+        }
     }
     
     func flagTapped(_ number: Int) {
@@ -76,12 +81,25 @@ struct ContentView: View {
         else {
             scoreTitle = "Wrong. That's the flag of \(countries[number])"
         }
-        showingScore = true
+        if questionNumber < 7 {
+            showingScore = true
+        }
+        else {
+            showingFinalScore = true
+            scoreTitle = scoreTitle + "\nQuiz Finished"
+        }
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        questionNumber += 1
+    }
+    
+    func restartQuiz() {
+        askQuestion()
+        score = 0
+        questionNumber = 0
     }
     
 }
